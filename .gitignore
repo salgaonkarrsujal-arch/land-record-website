@@ -67,3 +67,19 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# macOS / editor files
+.DS_Store
+.idea/
+
+# build output
+dist/
+
+# accidental Firebase/sample init folders
+n/
+functions/
+landrecord/
+
+# optional generated backends not needed for this frontend deploy
+functions/node_modules/
+landrecord/node_modules/
