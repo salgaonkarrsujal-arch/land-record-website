@@ -77,11 +77,13 @@ function LoginPage() {
       <div className="auth-shell">
         <div className="auth-intro">
           <p className="auth-eyebrow">Authentication</p>
-          <h1>Sign in to continue with bookings or admin allotments.</h1>
-          <p>
-            Users can sign in with Google or phone OTP. On mobile devices, Google sign-in may continue
-            through a secure redirect flow. Admin access is limited to approved email/password accounts only.
-          </p>
+          <h1>Sign in to access the academy room booking portal.</h1>
+          <p className="auth-intro-copy">Room booking, allotment tracking, and account access in one place.</p>
+          <div className="auth-feature-pills">
+            <span>User access</span>
+            <span>Admin panel</span>
+            <span>Secure sign-in</span>
+          </div>
           {!isFirebaseConfigured ? (
             <div className="auth-warning">
               Firebase is not configured yet. Add the values from the local `.env` file using
@@ -118,7 +120,7 @@ function LoginPage() {
               </button>
 
               <div className="auth-divider">
-                <span>or use phone login</span>
+                <span>or use phone number</span>
               </div>
 
               <form className="auth-form" onSubmit={otpRequested ? handleVerifyOtp : handleRequestOtp}>
