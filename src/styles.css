@@ -1799,36 +1799,46 @@ textarea {
 
 @media (max-width: 860px) {
   .header-banner-inner {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    text-align: center;
-    gap: 14px;
-    padding: 18px 0 16px;
+    grid-template-columns: 150px minmax(0, 1fr) 92px;
+    justify-items: stretch;
+    text-align: left;
+    gap: 16px;
+    padding: 16px 0 14px;
+  }
+
+  .banner-logo-left,
+  .banner-logo-right {
+    align-self: center;
   }
 
   .banner-logo-left img {
-    max-width: 170px;
+    max-width: 140px;
   }
 
   .banner-logo-right {
-    justify-content: center;
+    justify-content: flex-end;
   }
 
   .banner-logo-right img {
-    width: 92px;
-    height: 92px;
+    width: 76px;
+    height: 76px;
+  }
+
+  .header-banner-copy {
+    text-align: center;
   }
 
   .header-banner-copy h1 {
-    font-size: 24px;
+    font-size: 21px;
   }
 
   .banner-line-top {
-    font-size: 22px;
+    font-size: 17px;
   }
 
   .header-banner-copy p {
-    font-size: 13px;
+    font-size: 11px;
+    line-height: 1.4;
   }
 
   .menu-toggle {
@@ -1968,30 +1978,35 @@ textarea {
   }
 
   .header-banner-inner {
+    grid-template-columns: 96px minmax(0, 1fr) 62px;
     gap: 10px;
-    padding: 14px 0 12px;
+    padding: 12px 0 10px;
   }
 
   .banner-logo-left img {
-    max-width: 140px;
+    max-width: 92px;
   }
 
   .banner-logo-right img {
-    width: 74px;
-    height: 74px;
+    width: 52px;
+    height: 52px;
   }
 
   .banner-line-top {
-    font-size: 18px;
+    font-size: 9px;
+    line-height: 1.2;
   }
 
   .header-banner-copy h1 {
-    font-size: 20px;
+    margin: 4px 0 6px;
+    font-size: 13px;
+    line-height: 1.25;
   }
 
   .header-banner-copy p {
-    font-size: 12px;
-    line-height: 1.45;
+    margin: 2px 0;
+    font-size: 7.5px;
+    line-height: 1.35;
   }
 
   .nav-links {
