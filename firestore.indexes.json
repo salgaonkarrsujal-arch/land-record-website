@@ -1,0 +1,17 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "one",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ANY",
+      "unique": true
+    }
+  ],
+  "fieldOverrides": []
+}
