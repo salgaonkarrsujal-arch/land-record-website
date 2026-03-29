@@ -9,45 +9,50 @@ function escapeCsv(value) {
 }
 
 export function downloadBookingsCsv(bookings, fileName = "bookings-export.csv") {
+  const titleRows = [
+    ["Land Records Training Academy, Chhatrapati Sambhajinagar"],
+    []
+  ];
+
   const headers = [
-    "Sr No",
+    "Sr. No.",
     "Employee Name",
     "Designation",
     "Office",
-    "Admin Work",
-    "Type Of Work",
+    "Administrative work other than training",
+    "Type of Administrative Work",
     "From",
     "To",
-    "Contact",
-    "Women's Hostel Room",
-    "Men's Hostel Room",
-    "Allotment Date",
-    "Handover Date",
-    "Price",
+    "Employee's Number & email address",
+    "Women's Hostel Room No.",
+    "Men's Hostel Room No.",
+    "Room Allotment Date",
+    "Room Handover Date",
+    "Room Charges Amount",
     "Remarks",
     "Status"
   ];
 
   const rows = bookings.map((booking) => [
-    booking.srNo,
-    booking.employeeName,
-    booking.designation,
-    booking.office,
-    booking.adminWork,
-    booking.workType,
-    booking.checkIn,
-    booking.checkOut,
-    booking.contact,
-    booking.womenRoom,
-    booking.menRoom,
-    booking.allotmentDate,
-    booking.handoverDate,
-    booking.price,
-    booking.remarks,
-    booking.services
+    booking.srNo || "",
+    booking.employeeName || "",
+    booking.designation || "",
+    booking.office || "",
+    booking.adminWork || "",
+    booking.workType || "",
+    booking.checkIn || "",
+    booking.checkOut || "",
+    booking.contact || "",
+    booking.womenRoom || "",
+    booking.menRoom || "",
+    booking.allotmentDate || "",
+    booking.handoverDate || "",
+    booking.price || "",
+    booking.remarks || "",
+    booking.services || ""
   ]);
 
-  const csvContent = [headers, ...rows]
+  const csvContent = [...titleRows, headers, ...rows]
     .map((row) => row.map((value) => escapeCsv(value)).join(","))
     .join("\n");
 
