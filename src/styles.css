@@ -1545,6 +1545,26 @@ textarea {
   line-height: 1.2;
 }
 
+.booking-sections {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.booking-section-card {
+  padding: 16px 18px;
+  background: #f9faff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.booking-section-card h4 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--navy);
+}
+
 .service-badge {
   display: inline-flex;
   align-self: flex-start;
@@ -1560,21 +1580,25 @@ textarea {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px 20px;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .booking-meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px 22px;
-  margin-top: 18px;
+  margin-top: 0;
 }
 
 .booking-meta-grid div,
 .booking-dates div {
   display: grid;
-  gap: 4px;
+  gap: 5px;
   align-content: start;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid #eceef6;
+  border-radius: 12px;
 }
 
 .booking-meta-grid span,
@@ -1583,6 +1607,8 @@ textarea {
   font-size: 11px;
   font-weight: 600;
   line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .booking-meta-grid strong {
@@ -1591,6 +1617,18 @@ textarea {
   font-size: 15px;
   color: var(--text);
   line-height: 1.4;
+}
+
+.booking-dates strong {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.35;
+}
+
+.booking-dates small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .bookings-list {
@@ -1696,11 +1734,11 @@ textarea {
 .booking-side-panel {
   display: grid;
   gap: 8px;
-  padding: 14px;
+  padding: 16px;
   width: 100%;
   background: #f7f8fc;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
 }
 
 .booking-side {
