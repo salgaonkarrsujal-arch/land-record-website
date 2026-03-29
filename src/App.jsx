@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -27,19 +27,24 @@ function UserOnlyRoute({ children }) {
 }
 
 function App() {
+  const location = useLocation();
+  const { isAdmin, isAuthenticated, loading } = useAuth();
+  const hideChrome = !loading && !isAuthenticated && location.pathname === "/login";
+
+  const rootElement = loading ? (
+    <div className="page-message">Loading page...</div>
+  ) : isAuthenticated ? (
+    isAdmin ? <Navigate to="/bookings" replace /> : <HomePage />
+  ) : (
+    <Navigate to="/login" replace />
+  );
+
   return (
     <div className="app-shell">
-      <Navbar />
+      {!hideChrome ? <Navbar /> : null}
       <main className="page-content">
         <Routes>
-          <Route
-            path="/"
-            element={
-              <UserOnlyRoute>
-                <HomePage />
-              </UserOnlyRoute>
-            }
-          />
+          <Route path="/" element={rootElement} />
           <Route
             path="/explore"
             element={
@@ -95,7 +100,7 @@ function App() {
           />
         </Routes>
       </main>
-      <Footer />
+      {!hideChrome ? <Footer /> : null}
     </div>
   );
 }

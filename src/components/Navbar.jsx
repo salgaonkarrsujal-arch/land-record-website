@@ -7,15 +7,18 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { isAdmin, isAuthenticated, logout, profile } = useAuth();
-  const visibleLinks = isAdmin
+  const sealLogo = `${import.meta.env.BASE_URL}academy-seal.png`;
+  const visibleLinks = !isAuthenticated
+    ? []
+    : isAdmin
     ? navLinks.filter((link) => link.to === "/bookings")
     : navLinks.filter((link) => !(link.to === "/bookings" && !isAdmin));
 
   return (
     <header className="site-header">
       <div className="container navbar">
-        <Link className="brand" to={isAdmin ? "/bookings" : "/"}>
-          <img className="brand-logo" src="/academy-seal.png" alt="Land Records Training Academy seal" />
+        <Link className="brand" to={isAuthenticated ? (isAdmin ? "/bookings" : "/") : "/login"}>
+          <img className="brand-logo" src={sealLogo} alt="Land Records Training Academy seal" />
           <span className="brand-text">
             <strong>Land Records</strong>
             <small>Training Academy</small>

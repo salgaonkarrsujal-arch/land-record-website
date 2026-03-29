@@ -441,6 +441,9 @@ textarea {
 .auth-page {
   padding-top: 34px;
   padding-bottom: 44px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
 }
 
 .auth-shell {
@@ -1621,6 +1624,8 @@ textarea {
     padding: 12px;
     background: var(--navy);
     z-index: 10;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
   }
 
   .nav-links.open {
@@ -1694,5 +1699,151 @@ textarea {
   .detail-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --container: min(1180px, calc(100% - 24px));
+  }
+
+  .page-content {
+    min-height: calc(100vh - 260px);
+  }
+
+  .navbar {
+    min-height: 64px;
+  }
+
+  .brand {
+    max-width: calc(100% - 64px);
+  }
+
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand-text strong {
+    font-size: 12px;
+  }
+
+  .brand-text small {
+    font-size: 8px;
+  }
+
+  .nav-links {
+    top: 64px;
+    font-size: 12px;
+    gap: 14px;
+  }
+
+  .auth-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .home-hero,
+  .hero-overlay,
+  .hero-inner {
+    min-height: 360px;
+  }
+
+  .hero-inner {
+    align-items: flex-end;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+    padding-top: 0;
+    padding-bottom: 72px;
+  }
+
+  .hero-copy h1 {
+    font-size: 18px;
+    line-height: 1.2;
+  }
+
+  .hero-copy p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .home-profile-strip {
+    max-width: 100%;
+    padding: 12px 14px;
+  }
+
+  .search-bar-wrap {
+    margin-top: -24px;
+  }
+
+  .search-bar {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .search-item {
+    gap: 4px;
+  }
+
+  .search-item strong,
+  .search-item span,
+  .search-item small {
+    font-size: 12px;
+  }
+
+  .search-button,
+  .confirm-button,
+  .small-button,
+  .auth-primary-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .content-section {
+    padding-top: 20px;
+    padding-bottom: 8px;
+  }
+
+  .overview-grid,
+  .detail-summary-band,
+  .allotment-stats-grid,
+  .room-grid.five-col,
+  .footer-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-card,
+  .detail-summary-card,
+  .allotment-stat-card,
+  .listing-card,
+  .booking-card,
+  .confirm-card,
+  .summary-card,
+  .profile-card,
+  .profile-hero-card {
+    padding: 16px;
+  }
+
+  .auth-page {
+    padding-top: 20px;
+    padding-bottom: 24px;
+  }
+
+  .auth-shell {
+    gap: 18px;
+  }
+
+  .auth-intro h1,
+  .profile-hero-copy h1 {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
   }
 }
