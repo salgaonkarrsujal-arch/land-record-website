@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   browserLocalPersistence,
+  getRedirectResult,
   GoogleAuthProvider,
   RecaptchaVerifier,
   onAuthStateChanged,
   setPersistence,
+  signInWithRedirect,
   updateProfile as updateFirebaseProfile,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
@@ -20,6 +22,14 @@ const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
   .split(",")
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
+
+function isMobileBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
 
 function normalizeUserProfile(firebaseUser, role = "user", extra = {}) {
   return {
@@ -84,6 +94,21 @@ export function AuthProvider({ children }) {
         console.error("Failed to set auth persistence", error);
       }
 
+      try {
+        const redirectResult = await getRedirectResult(auth);
+
+        if (redirectResult?.user) {
+          const role =
+            redirectResult.user.email && adminEmails.includes(redirectResult.user.email.toLowerCase())
+              ? "admin"
+              : "user";
+          const userProfile = await upsertUserProfile(redirectResult.user, role);
+          setProfile(userProfile);
+        }
+      } catch (error) {
+        console.error("Google redirect sign-in failed", error);
+      }
+
       unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
         setCurrentUser(firebaseUser);
 
@@ -116,6 +141,12 @@ export function AuthProvider({ children }) {
   const signInWithGoogleUser = async () => {
     ensureConfigured();
     const provider = new GoogleAuthProvider();
+
+    if (isMobileBrowser()) {
+      await signInWithRedirect(auth, provider);
+      return null;
+    }
+
     const result = await signInWithPopup(auth, provider);
     const role = result.user.email && adminEmails.includes(result.user.email.toLowerCase()) ? "admin" : "user";
     const userProfile = await upsertUserProfile(result.user, role);

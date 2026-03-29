@@ -79,8 +79,8 @@ function LoginPage() {
           <p className="auth-eyebrow">Authentication</p>
           <h1>Sign in to continue with bookings or admin allotments.</h1>
           <p>
-            Users can sign in with Google or phone OTP. Admin access is limited to approved email/password
-            accounts only.
+            Users can sign in with Google or phone OTP. On mobile devices, Google sign-in may continue
+            through a secure redirect flow. Admin access is limited to approved email/password accounts only.
           </p>
           {!isFirebaseConfigured ? (
             <div className="auth-warning">
