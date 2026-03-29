@@ -1,13 +1,11 @@
 import { footerColumns } from "../data/siteContent";
 
 function Footer() {
-  const sealLogo = `${import.meta.env.BASE_URL}academy-seal.png`;
-
   return (
     <footer className="site-footer">
       <div className="container footer-top">
         <div className="footer-brand">
-          <img className="brand-logo footer-logo" src={sealLogo} alt="Land Records Training Academy seal" />
+          <img className="brand-logo footer-logo" src="academy-seal.png" alt="Land Records Training Academy seal" />
           <span className="brand-text">
             <strong>Land Records</strong>
             <small>Training Academy</small>
