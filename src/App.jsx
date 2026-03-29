@@ -29,7 +29,6 @@ function UserOnlyRoute({ children }) {
 function App() {
   const location = useLocation();
   const { isAdmin, isAuthenticated, loading } = useAuth();
-  const hideChrome = !loading && !isAuthenticated && location.pathname === "/login";
 
   const rootElement = loading ? (
     <div className="page-message">Loading page...</div>
@@ -41,7 +40,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      {!hideChrome ? <Navbar /> : null}
+      <Navbar />
       <main className="page-content">
         <Routes>
           <Route path="/" element={rootElement} />
@@ -100,7 +99,7 @@ function App() {
           />
         </Routes>
       </main>
-      {!hideChrome ? <Footer /> : null}
+      <Footer />
     </div>
   );
 }
