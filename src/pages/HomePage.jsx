@@ -34,22 +34,6 @@ function HomePage() {
           <SearchBar />
         </div>
       </section>
-
-      <section className="content-section container">
-        <div className="section-title">
-          <h2>Overview</h2>
-          <span />
-        </div>
-        <div className="overview-grid">
-          {overviewCards.map((item) => (
-            <article key={item.title} className="overview-card">
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section className="content-section container">
         <div className="section-title">
           <h2>Top Rated</h2>
