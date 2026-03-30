@@ -540,6 +540,19 @@ textarea {
   background: var(--navy-dark);
 }
 
+.small-button.danger {
+  background: #b3261e;
+}
+
+.small-button.danger:hover {
+  background: #8f1f19;
+}
+
+.small-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .page-message {
   margin: 18px 0;
   padding: 18px;
@@ -1541,69 +1554,78 @@ textarea:focus {
 
 .booking-card {
   display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 22px;
-  padding: 24px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 16px;
+  padding: 16px;
   box-shadow: var(--shadow-soft);
   border-radius: var(--radius-lg);
 }
 
-.booking-content {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 22px;
-  align-items: start;
+.booking-list-main {
+  min-width: 0;
+  flex: 1;
 }
 
-.booking-image-wrap {
-  position: relative;
-}
-
-.booking-image-wrap img {
-  height: 192px;
-  border-radius: 14px;
-}
-
-.booking-serial-chip {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  display: inline-flex;
-  max-width: calc(100% - 24px);
-  padding: 8px 12px;
-  background: rgba(44, 46, 88, 0.92);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.25;
-  border-radius: 10px;
-}
-
-.booking-heading {
+.booking-line {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: var(--text);
 }
 
-.booking-copy h3 {
-  margin: 0;
+.booking-line:last-child {
+  margin-bottom: 0;
+}
+
+.booking-line span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.booking-line-top strong {
   font-size: 18px;
   line-height: 1.2;
 }
 
-.booking-sections {
-  display: grid;
-  gap: 14px;
-  margin-top: 18px;
+.booking-serial-chip {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: var(--navy);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.booking-list-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  min-width: 116px;
+}
+
+.booking-list-actions .small-button {
+  width: 100%;
 }
 
 .booking-section-card {
-  padding: 16px 18px;
+  padding: 12px 14px;
   background: #f9faff;
   border: 1px solid var(--line);
   border-radius: 14px;
+}
+
+.booking-expanded-section {
+  margin-top: 12px;
+  width: 100%;
+  grid-column: 1 / -1;
 }
 
 .booking-section-card h4 {
@@ -1633,8 +1655,8 @@ textarea:focus {
 
 .booking-meta-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 22px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
   margin-top: 0;
 }
 
@@ -1681,7 +1703,8 @@ textarea:focus {
 
 .bookings-list {
   display: grid;
-  gap: 18px;
+  grid-template-columns: 1fr;
+  gap: 12px;
   margin-top: 24px;
 }
 
@@ -1772,38 +1795,6 @@ textarea:focus {
   background: #f4f5f9;
   color: var(--muted);
   font-size: 11px;
-}
-
-.booking-side-label {
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.booking-side-panel {
-  display: grid;
-  gap: 8px;
-  padding: 16px;
-  width: 100%;
-  background: #f7f8fc;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-}
-
-.booking-side {
-  gap: 14px;
-}
-
-.booking-price {
-  font-size: 20px;
-  line-height: 1.1;
-}
-
-.booking-side-panel small {
-  color: var(--text);
-  font-size: 12px;
-  line-height: 1.5;
 }
 
 .site-footer {
@@ -1974,12 +1965,10 @@ textarea:focus {
   .form-grid.two-col,
   .room-option-card,
   .listing-card,
-  .booking-card,
   .detail-gallery,
   .detail-header,
   .detail-summary-band,
   .footer-top,
-  .booking-content,
   .booking-dates,
   .footer-columns,
   .summary-row {
@@ -2030,13 +2019,24 @@ textarea:focus {
     align-items: flex-start;
   }
 
-  .booking-content {
+  .booking-card {
     grid-template-columns: 1fr;
   }
 
-  .booking-side {
-    align-items: flex-start;
-    text-align: left;
+  .booking-list-actions {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+  }
+
+  .booking-list-actions .small-button {
+    width: auto;
+  }
+
+  .booking-meta-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -2181,6 +2181,10 @@ textarea:focus {
   .allotment-stats-grid,
   .room-grid.five-col,
   .footer-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-meta-grid {
     grid-template-columns: 1fr;
   }
 
