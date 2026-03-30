@@ -989,18 +989,33 @@ textarea {
 
 .occupancy-card {
   padding: 22px;
-  background: #fff;
-  border: 1px solid var(--line);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86)),
+    repeating-linear-gradient(
+      0deg,
+      #d3cbc4 0,
+      #d3cbc4 12px,
+      #c9c0b8 12px,
+      #c9c0b8 14px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(120, 104, 91, 0.12) 0,
+      rgba(120, 104, 91, 0.12) 28px,
+      rgba(255, 255, 255, 0) 28px,
+      rgba(255, 255, 255, 0) 56px
+    );
+  border: 1px solid #cfc8bf;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-soft);
 }
 
 .occupancy-legend {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
-  gap: 24px;
-  margin-bottom: 16px;
+  gap: 18px;
+  margin-bottom: 18px;
 }
 
 .occupancy-legend span {
@@ -1032,81 +1047,372 @@ textarea {
   border-color: #6f788c;
 }
 
-.occupancy-screen {
-  margin: 0 auto 20px;
-  max-width: 900px;
-  padding: 10px 12px;
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #485067;
-  background: #e4e8ef;
-  border-radius: 10px;
-}
-
-.occupancy-grid {
-  max-width: 900px;
-  margin: 0 auto;
-  display: grid;
+.hostel-switcher {
+  display: inline-flex;
+  flex-wrap: wrap;
   gap: 10px;
+  padding: 6px;
+  margin-bottom: 18px;
+  background: #f4f7fd;
+  border: 1px solid #dce4f3;
+  border-radius: 16px;
 }
 
-.occupancy-row {
-  display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  align-items: center;
-  gap: 12px;
-}
-
-.occupancy-row-label {
-  font-size: 28px;
-  font-weight: 700;
-  color: #434b5f;
-  text-align: center;
-}
-
-.occupancy-row-slots {
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.occupancy-slot {
-  padding: 10px 0;
-  border: 1px solid #d7dce6;
-  border-radius: 8px;
-  background: #eceff4;
-  color: #2f3748;
+.hostel-switcher-tab {
+  min-width: 168px;
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #44506a;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.occupancy-slot.occupied {
-  background: #6f788c;
-  border-color: #6f788c;
+.hostel-switcher-tab.active {
+  background: #10213f;
   color: #fff;
+  box-shadow: 0 12px 28px rgba(16, 33, 63, 0.18);
 }
 
-.occupancy-slot.selected {
-  background: #3b6df6;
-  border-color: #3b6df6;
-  color: #fff;
+.occupancy-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+  gap: 22px;
+  align-items: start;
 }
 
-.occupancy-detail {
-  max-width: 900px;
-  margin: 18px auto 0;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: #f6f8fd;
-  border: 1px solid #e2e7f4;
+.occupancy-layout.no-room-selected {
+  grid-template-columns: minmax(0, 1fr);
 }
 
-.occupancy-detail p {
+.hostel-structure-card,
+.room-inspector-card {
+  border: 1px solid rgba(65, 57, 49, 0.22);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(2px);
+}
+
+.hostel-structure-card {
+  padding: 18px;
+}
+
+.room-inspector-card p {
   margin: 0;
-  color: #4a5165;
+}
+
+.inspector-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #63708c;
+}
+
+.hostel-structure-header h3,
+.room-inspector-card h3 {
+  margin: 6px 0 0;
+  font-size: 28px;
+  color: var(--text);
+}
+
+.hostel-name-banner {
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px auto 18px;
+  padding: 12px 30px;
+  border: 2px solid rgba(119, 109, 101, 0.36);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fcf8f3 0%, #f0ebe3 100%);
+  color: #191919;
+  font-size: 25px;
+  font-weight: 800;
+  text-align: center;
+  box-shadow: 0 10px 20px rgba(58, 48, 39, 0.1);
+}
+
+.floor-plan-stack {
+  display: grid;
+  gap: 18px;
+}
+
+.floor-plan-card {
+  padding: 12px;
+  border: 3px solid #5c564f;
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+}
+
+.floor-plan-rooms {
+  display: grid;
+  gap: 0;
+}
+
+.floor-plan-third-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(96px, 1fr);
+  gap: 0;
+}
+
+.third-floor-main {
+  display: grid;
+  grid-template-rows: auto auto auto;
+}
+
+.floor-plan-third-top {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 0;
+}
+
+.floor-plan-third-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.25fr 1fr 1fr 1fr 1fr;
+  gap: 0;
+}
+
+.floor-plan-corridor {
+  margin: 0;
+  padding: 16px 14px;
+  border-top: 3px solid #5c564f;
+  border-bottom: 3px solid #5c564f;
+  background: #b4b4b4;
+  color: #232323;
+  text-align: center;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.third-floor-corridor {
+  border-right: 3px solid #5c564f;
+}
+
+.ground-floor-card {
+  padding: 0;
+}
+
+.floor-plan-ground-shell {
+  display: grid;
+  grid-template-columns: minmax(170px, 1.45fr) minmax(0, 3.6fr);
+  align-items: stretch;
+}
+
+.ground-canteen-wrap {
+  border-right: 3px solid #5c564f;
+}
+
+.ground-canteen-wrap .plan-cell {
+  height: 100%;
+  min-height: 100%;
+  border: 0;
+}
+
+.ground-right-wrap {
+  display: grid;
+  grid-template-rows: auto auto auto;
+}
+
+.floor-plan-ground-top,
+.floor-plan-ground-bottom {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+}
+
+.ground-floor-corridor {
+  border-left: 3px solid #5c564f;
+}
+
+.plan-cell {
+  min-height: 94px;
+  border: 2px solid #5c564f;
+}
+
+.plan-cell.room {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 8px;
+  background: #ffffff;
+  color: #202020;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.plan-cell.room:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(42, 40, 38, 0.12);
+}
+
+.plan-cell.room .room-name {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.plan-cell.room .room-status {
+  font-size: 12px;
+  font-weight: 700;
+  color: #707070;
+}
+
+.plan-cell.room.available {
+  background: #ffffff;
+  border-color: #5c564f;
+}
+
+.plan-cell.room.occupied {
+  background: #6e7b86;
+  border-color: #5c564f;
+  color: #fff;
+}
+
+.plan-cell.room.occupied .room-status {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.plan-cell.room.selected {
+  background: #e6f4ff;
+  border-color: #36a9e1;
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(54, 169, 225, 0.2);
+}
+
+.plan-cell.room.selected .room-status {
+  color: #1c6b8f;
+}
+
+.plan-cell.room.selected .room-name {
+  color: #134765;
+}
+
+.plan-cell.service {
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  background: #ececec;
+  color: #4c4c4c;
+  font-size: 15px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.plan-cell.service.store-room {
+  color: #c73b37;
+  background: #ffffff;
+}
+
+.plan-cell.service.reception {
+  background: #eef5fb;
+  color: #2b88c7;
+}
+
+.plan-cell.service.canteen {
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #0d63aa;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.plan-cell.service.stairs {
+  position: relative;
+  color: #727272;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #f2f2f2 0,
+      #f2f2f2 7px,
+      #c8c8c8 7px,
+      #c8c8c8 8px
+    );
+}
+
+.plan-cell.service.terrace {
+  background: #b4b4b4;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+.floor-plan-third-bottom .plan-cell.service.stairs {
+  min-height: 96px;
+}
+
+.floor-plan-third-shell .plan-cell.service.terrace {
+  min-height: 100%;
+  border-left: 3px solid #5c564f;
+  font-size: 16px;
+}
+
+.floor-plan-ground-bottom .plan-cell.service.stairs {
+  min-height: 118px;
+}
+
+.plan-cell.empty {
+  border-style: none;
+  border-color: transparent;
+  background: transparent;
+}
+
+.room-inspector-card {
+  position: sticky;
+  top: 96px;
+  padding: 20px;
+  box-shadow: var(--shadow-soft);
+}
+
+.inspector-kicker.available {
+  color: #1c7c4f;
+}
+
+.inspector-kicker.booked {
+  color: #b04a40;
+}
+
+.inspector-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.inspector-grid div {
+  padding: 12px;
+  border-radius: 14px;
+  background: #f2f6fc;
+}
+
+.inspector-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #6a7489;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.inspector-grid strong {
+  color: var(--text);
+  font-size: 15px;
+  word-break: break-word;
+}
+
+.inspector-button {
+  width: 100%;
+  margin-top: 18px;
+}
+
+.inspector-note {
+  margin-top: 16px !important;
+  color: #6a7489;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .section-title {
@@ -2326,14 +2632,12 @@ textarea:focus {
     grid-template-columns: 1fr 1fr;
   }
 
-  .occupancy-row {
+  .occupancy-layout {
     grid-template-columns: 1fr;
-    gap: 8px;
   }
 
-  .occupancy-row-label {
-    text-align: left;
-    font-size: 20px;
+  .room-inspector-card {
+    position: static;
   }
 }
 
@@ -2489,12 +2793,91 @@ textarea:focus {
     padding: 14px;
   }
 
-  .occupancy-screen {
-    font-size: 18px;
+  .hostel-switcher {
+    width: 100%;
   }
 
-  .occupancy-row-slots {
+  .hostel-switcher-tab {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .hostel-structure-card,
+  .room-inspector-card {
+    padding: 16px;
+  }
+
+  .hostel-name-banner,
+  .room-inspector-card h3 {
+    font-size: 22px;
+  }
+
+  .floor-plan-card {
+    padding: 10px;
+  }
+
+  .ground-floor-card {
+    padding: 0;
+  }
+
+  .floor-plan-rooms {
+    gap: 6px;
+  }
+
+  .floor-plan-third-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .floor-plan-third-top,
+  .floor-plan-third-bottom,
+  .floor-plan-ground-top,
+  .floor-plan-ground-bottom {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .floor-plan-third-bottom .plan-cell.service.stairs,
+  .floor-plan-third-shell .plan-cell.service.terrace {
+    grid-column: span 2;
+  }
+
+  .floor-plan-third-bottom .plan-cell.room:last-child {
+    grid-column: span 2;
+  }
+
+  .floor-plan-ground-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .ground-canteen-wrap {
+    border-right: 0;
+    border-bottom: 3px solid #5c564f;
+  }
+
+  .floor-plan-corridor {
+    font-size: 19px;
+    padding: 12px;
+  }
+
+  .plan-cell {
+    min-height: 72px;
+  }
+
+  .plan-cell.room {
+    padding: 10px;
+  }
+
+  .plan-cell.room .room-name,
+  .inspector-grid strong {
+    font-size: 13px;
+  }
+
+  .plan-cell.room .room-status,
+  .plan-cell.service {
+    font-size: 12px;
+  }
+
+  .inspector-grid {
+    grid-template-columns: 1fr;
   }
 
   .overview-card,
