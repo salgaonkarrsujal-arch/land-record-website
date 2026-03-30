@@ -579,6 +579,11 @@ textarea {
   margin: 0 auto;
 }
 
+.auth-shell-single {
+  grid-template-columns: 1fr;
+  max-width: 760px;
+}
+
 .profile-page {
   padding-top: 34px;
   padding-bottom: 44px;
@@ -782,6 +787,64 @@ textarea {
   padding: 24px;
 }
 
+.auth-card-wide {
+  padding: 28px;
+}
+
+.auth-head h1 {
+  margin: 0 0 6px;
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.auth-head p {
+  margin: 0 0 16px;
+  color: var(--muted);
+}
+
+.access-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.access-choice-card {
+  padding: 14px;
+  border: 1px solid #d9e1ff;
+  border-radius: 12px;
+  background: #eef2ff;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+}
+
+.access-choice-card.admin {
+  background: #f6f7fc;
+  border-color: var(--line);
+  cursor: pointer;
+}
+
+.access-choice-card.active {
+  border-color: #8ea8ff;
+  box-shadow: 0 0 0 3px rgba(59, 109, 246, 0.14);
+}
+
+.access-choice-card strong,
+.access-choice-card span {
+  display: block;
+}
+
+.access-choice-card strong {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.access-choice-card span {
+  font-size: 12px;
+  color: #5f6681;
+}
+
 .auth-tabs {
   display: flex;
   gap: 10px;
@@ -816,6 +879,26 @@ textarea {
   max-width: 360px;
 }
 
+.auth-form-wide {
+  max-width: 100%;
+}
+
+.user-room-inline {
+  margin-bottom: 10px;
+}
+
+.login-search-results {
+  margin-top: 12px;
+}
+
+.login-choice-row {
+  margin-bottom: 14px;
+}
+
+.login-choice-row .auth-primary-button {
+  width: 100%;
+}
+
 .auth-form label {
   display: flex;
   flex-direction: column;
@@ -838,6 +921,12 @@ textarea {
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.auth-primary-button.secondary {
+  background: #eef2ff;
+  color: var(--navy);
+  border: 1px solid #d9e1ff;
 }
 
 .auth-divider {
@@ -1718,8 +1807,8 @@ textarea:focus {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: start;
-  gap: 16px;
-  padding: 16px;
+  gap: 14px;
+  padding: 18px;
   box-shadow: var(--shadow-soft);
   border-radius: var(--radius-lg);
 }
@@ -1734,7 +1823,7 @@ textarea:focus {
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   color: var(--text);
 }
 
@@ -1749,28 +1838,30 @@ textarea:focus {
 }
 
 .booking-line-top strong {
-  font-size: 18px;
+  flex: 1 1 220px;
+  min-width: 0;
+  font-size: 20px;
   line-height: 1.2;
 }
 
 .booking-serial-chip {
   display: inline-flex;
-  padding: 4px 8px;
+  padding: 5px 10px;
   border-radius: 999px;
   background: #eef2ff;
   color: var(--navy);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
 .booking-list-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   align-items: stretch;
   justify-content: flex-start;
   flex-shrink: 0;
-  min-width: 116px;
+  min-width: 128px;
 }
 
 .booking-list-actions .small-button {
@@ -1778,8 +1869,8 @@ textarea:focus {
 }
 
 .booking-section-card {
-  padding: 12px 14px;
-  background: #f9faff;
+  padding: 14px;
+  background: #f8faff;
   border: 1px solid var(--line);
   border-radius: 14px;
 }
@@ -1804,7 +1895,7 @@ textarea:focus {
   background: #e7f6ea;
   color: var(--success);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 
@@ -1817,7 +1908,7 @@ textarea:focus {
 
 .booking-meta-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px 12px;
   margin-top: 0;
 }
@@ -1846,9 +1937,10 @@ textarea:focus {
 .booking-meta-grid strong {
   display: block;
   margin-top: 0;
-  font-size: 15px;
+  font-size: 16px;
   color: var(--text);
   line-height: 1.4;
+  word-break: break-word;
 }
 
 .booking-dates strong {
@@ -1924,6 +2016,26 @@ textarea:focus {
   border: 1px solid var(--line);
   box-shadow: var(--shadow-soft);
   border-radius: var(--radius-md);
+}
+
+.user-search-card {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.user-search-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .allotment-filter-pills {
@@ -2042,6 +2154,10 @@ textarea:focus {
     gap: 16px;
   }
 
+  .access-choice-grid {
+    grid-template-columns: 1fr;
+  }
+
   .confirm-sidebar {
     position: static;
     top: auto;
@@ -2146,6 +2262,10 @@ textarea:focus {
   .allotment-toolbar {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .user-search-card {
+    grid-template-columns: 1fr;
   }
 
   .allotment-search-box {

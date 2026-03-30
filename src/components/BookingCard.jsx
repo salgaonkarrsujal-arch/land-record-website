@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function BookingCard({ booking, onDelete, deleting = false }) {
+function BookingCard({ booking, onDelete, deleting = false, allowDelete = true }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -26,14 +26,16 @@ function BookingCard({ booking, onDelete, deleting = false }) {
         <button type="button" className="small-button" onClick={() => setExpanded((value) => !value)}>
           {expanded ? "Show Less" : "Show More"}
         </button>
-        <button
-          type="button"
-          className="small-button danger"
-          onClick={() => onDelete?.(booking)}
-          disabled={deleting}
-        >
-          {deleting ? "Deleting..." : "Delete"}
-        </button>
+        {allowDelete ? (
+          <button
+            type="button"
+            className="small-button danger"
+            onClick={() => onDelete?.(booking)}
+            disabled={deleting}
+          >
+            {deleting ? "Deleting..." : "Delete"}
+          </button>
+        ) : null}
       </div>
 
       {expanded ? (
