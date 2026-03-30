@@ -77,10 +77,10 @@ textarea {
 
 .header-banner-inner {
   display: grid;
-  grid-template-columns: 240px 1fr 140px;
+  grid-template-columns: 190px 1fr 110px;
   align-items: center;
-  gap: 24px;
-  padding: 22px 0 18px;
+  gap: 18px;
+  padding: 8px 0 6px;
 }
 
 .banner-logo {
@@ -89,7 +89,7 @@ textarea {
 }
 
 .banner-logo-left img {
-  max-width: 210px;
+  max-width: 150px;
   height: auto;
   object-fit: contain;
 }
@@ -99,8 +99,8 @@ textarea {
 }
 
 .banner-logo-right img {
-  width: 112px;
-  height: 112px;
+  width: 78px;
+  height: 78px;
   object-fit: contain;
 }
 
@@ -110,15 +110,15 @@ textarea {
 }
 
 .header-banner-copy h1 {
-  margin: 8px 0 10px;
-  font-size: 28px;
+  margin: 4px 0 4px;
+  font-size: 22px;
   line-height: 1.15;
 }
 
 .header-banner-copy p {
-  margin: 4px 0;
-  font-size: 14px;
-  line-height: 1.5;
+  margin: 1px 0;
+  font-size: 12px;
+  line-height: 1.35;
   color: #454966;
 }
 
@@ -128,7 +128,7 @@ textarea {
 }
 
 .banner-line-top {
-  font-size: 26px;
+  font-size: 16px;
   line-height: 1.2;
 }
 
@@ -140,7 +140,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 62px;
+  min-height: 52px;
 }
 
 .brand,
@@ -892,6 +892,128 @@ textarea {
   color: var(--muted);
   font-size: 12px;
   line-height: 1.6;
+}
+
+.occupancy-card {
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.occupancy-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.occupancy-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4d5269;
+  font-weight: 700;
+}
+
+.legend-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1px solid #cfd4df;
+}
+
+.legend-box.available {
+  background: #eceff4;
+}
+
+.legend-box.selected {
+  background: #3b6df6;
+  border-color: #3b6df6;
+}
+
+.legend-box.occupied {
+  background: #6f788c;
+  border-color: #6f788c;
+}
+
+.occupancy-screen {
+  margin: 0 auto 20px;
+  max-width: 900px;
+  padding: 10px 12px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #485067;
+  background: #e4e8ef;
+  border-radius: 10px;
+}
+
+.occupancy-grid {
+  max-width: 900px;
+  margin: 0 auto;
+  display: grid;
+  gap: 10px;
+}
+
+.occupancy-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.occupancy-row-label {
+  font-size: 28px;
+  font-weight: 700;
+  color: #434b5f;
+  text-align: center;
+}
+
+.occupancy-row-slots {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.occupancy-slot {
+  padding: 10px 0;
+  border: 1px solid #d7dce6;
+  border-radius: 8px;
+  background: #eceff4;
+  color: #2f3748;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.occupancy-slot.occupied {
+  background: #6f788c;
+  border-color: #6f788c;
+  color: #fff;
+}
+
+.occupancy-slot.selected {
+  background: #3b6df6;
+  border-color: #3b6df6;
+  color: #fff;
+}
+
+.occupancy-detail {
+  max-width: 900px;
+  margin: 18px auto 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f6f8fd;
+  border: 1px solid #e2e7f4;
+}
+
+.occupancy-detail p {
+  margin: 0;
+  color: #4a5165;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .section-title {
@@ -2038,6 +2160,16 @@ textarea:focus {
   .booking-meta-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .occupancy-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .occupancy-row-label {
+    text-align: left;
+    font-size: 20px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2186,6 +2318,18 @@ textarea:focus {
 
   .booking-meta-grid {
     grid-template-columns: 1fr;
+  }
+
+  .occupancy-card {
+    padding: 14px;
+  }
+
+  .occupancy-screen {
+    font-size: 18px;
+  }
+
+  .occupancy-row-slots {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .overview-card,
