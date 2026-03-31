@@ -1272,10 +1272,11 @@ textarea {
 
 .women-ground-plan {
   display: grid;
-  grid-template-columns: minmax(132px, 1.18fr) minmax(160px, 1.12fr) minmax(96px, 0.68fr) minmax(170px, 1.2fr) minmax(
-      82px,
-      0.72fr
-    ) minmax(82px, 0.72fr);
+  --wg-stairs-width: 230px;
+  grid-template-columns: minmax(132px, 1.25fr) minmax(160px, 1fr) var(--wg-stairs-width) minmax(170px, 1fr) minmax(
+      90px,
+      0.63fr
+    ) minmax(90px, 0.63fr);
   grid-template-rows: 42px 150px 88px;
   grid-template-areas:
     "top top top top top top"
@@ -1285,13 +1286,18 @@ textarea {
   min-width: 760px;
 }
 
+.women-ground-plan,
+.women-ground-plan * {
+  box-sizing: border-box;
+}
+
 .women-ground-top-strip {
   grid-area: top;
   display: grid;
-  grid-template-columns: minmax(132px, 1.18fr) minmax(160px, 1.12fr) minmax(96px, 0.68fr) minmax(170px, 1.2fr) minmax(
-      82px,
-      0.72fr
-    ) minmax(82px, 0.72fr);
+  grid-template-columns: minmax(132px, 1.25fr) minmax(160px, 1fr) var(--wg-stairs-width) minmax(170px, 1fr) minmax(
+      90px,
+      0.63fr
+    ) minmax(90px, 0.63fr);
   background: #dce7ef;
   border-bottom: 2px solid #5c564f;
 }
@@ -1300,8 +1306,8 @@ textarea {
   grid-column: 3;
   width: 100%;
   min-height: 100%;
-  border-left: 2px solid #5c564f;
-  border-right: 2px solid #5c564f;
+  border-left: 3px solid #5c564f;
+  border-right: 3px solid #5c564f;
 }
 
 .women-ground-corridor {
@@ -1311,7 +1317,7 @@ textarea {
   justify-content: center;
   text-align: center;
   border-left: 3px solid #5c564f;
-  border-right: 2px solid #5c564f;
+  border-right: 3px solid #5c564f;
   border-top: 2px solid #5c564f;
   border-bottom: 2px solid #5c564f;
   background: #ffffff;
@@ -1324,19 +1330,24 @@ textarea {
 
 .women-ground-bhandar .plan-cell.service.bhandar-room {
   min-height: 100%;
-  border-right: 2px solid #5c564f;
+  border-right: 3px solid #5c564f;
 }
 
 .women-ground-left-mini-row {
   grid-area: left;
   display: grid;
-  grid-template-columns: 1.4fr 0.7fr;
+  grid-template-columns: 1.55fr 0.85fr;
   gap: 0;
+  min-height: 88px;
+  width: 100%;
 }
 
 .women-ground-bottom-stairs-row {
   grid-area: stairs;
   display: grid;
+  width: var(--wg-stairs-width);
+  justify-self: center;
+  min-height: 88px;
 }
 
 .women-ground-bottom-stairs-row > .plan-cell.service.stairs {
@@ -1344,42 +1355,23 @@ textarea {
 }
 
 .women-ground-bottom-stairs-row {
-  border-left: 2px solid #5c564f;
-  border-right: 2px solid #5c564f;
+  border-left: 3px solid #5c564f;
+  border-right: 3px solid #5c564f;
 }
 
 .women-ground-right-mini-row {
   grid-area: right;
   display: grid;
-  grid-template-columns: 1.35fr 0.8fr 0.8fr;
-  grid-template-rows: 1fr 1fr;
-  grid-template-areas:
-    "strong empty toiletRight"
-    "strong toiletMid toiletRight";
+  grid-template-columns: 1.65fr 0.9fr 0.9fr;
   gap: 0;
+  min-height: 88px;
+  width: 100%;
 }
 
-.women-ground-right-mini-row .wg-strong {
-  grid-area: strong;
-}
-
-.women-ground-right-mini-row .wg-toilet-mid {
-  grid-area: toiletMid;
-}
-
-.women-ground-right-mini-row .wg-toilet-right {
-  grid-area: toiletRight;
-}
-
-.women-ground-right-mini-row .wg-empty {
-  grid-area: empty;
-  border: 2px solid #5c564f;
-  background: #ffffff;
-}
-
-.women-ground-right-mini-row .wg-strong .plan-cell,
-.women-ground-right-mini-row .wg-toilet-right .plan-cell {
-  min-height: 100%;
+.women-ground-left-mini-row .plan-cell,
+.women-ground-bottom-stairs-row .plan-cell,
+.women-ground-right-mini-row .plan-cell {
+  min-height: 0;
   height: 100%;
 }
 
