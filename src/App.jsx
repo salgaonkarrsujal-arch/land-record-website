@@ -1,41 +1,29 @@
-import { Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import HomePage from "./pages/HomePage";
-import ListingsPage from "./pages/ListingsPage";
-import RoomDetailPage from "./pages/RoomDetailPage";
 import ConfirmBookingPage from "./pages/ConfirmBookingPage";
 import MyBookingsPage from "./pages/MyBookingsPage";
+import RoomOccupancyPage from "./pages/RoomOccupancyPage";
 import LoginPage from "./pages/LoginPage";
-import UserBookingsPage from "./pages/UserBookingsPage";
 import ProfilePage from "./pages/ProfilePage";
-
-function UserOnlyRoute({ children }) {
-  const { isAdmin, loading } = useAuth();
-
-  if (loading) {
-    return <div className="page-message">Loading page...</div>;
-  }
-
-  if (isAdmin) {
-    return <Navigate to="/bookings" replace />;
-  }
-
-  return children;
-}
+import UserBookingsPage from "./pages/UserBookingsPage";
 
 function App() {
-  const location = useLocation();
-  const { isAdmin, isAuthenticated, loading } = useAuth();
+  const { isAdmin, isAuthenticated, isProfileComplete, loading } = useAuth();
 
   const rootElement = loading ? (
     <div className="page-message">Loading page...</div>
-  ) : isAuthenticated ? (
-    isAdmin ? <Navigate to="/bookings" replace /> : <HomePage />
-  ) : (
+  ) : !isAuthenticated ? (
     <Navigate to="/login" replace />
+  ) : isAdmin ? (
+    <HomePage />
+  ) : isProfileComplete ? (
+    <HomePage />
+  ) : (
+    <Navigate to="/profile" replace />
   );
 
   return (
@@ -44,32 +32,6 @@ function App() {
       <main className="page-content">
         <Routes>
           <Route path="/" element={rootElement} />
-          <Route
-            path="/explore"
-            element={
-              <UserOnlyRoute>
-                <ListingsPage />
-              </UserOnlyRoute>
-            }
-          />
-          <Route
-            path="/room-details"
-            element={
-              <UserOnlyRoute>
-                <RoomDetailPage />
-              </UserOnlyRoute>
-            }
-          />
-          <Route
-            path="/confirm-booking"
-            element={
-              <ProtectedRoute>
-                <UserOnlyRoute>
-                  <ConfirmBookingPage />
-                </UserOnlyRoute>
-              </ProtectedRoute>
-            }
-          />
           <Route path="/login" element={<LoginPage />} />
           <Route
             path="/bookings"
@@ -80,12 +42,18 @@ function App() {
             }
           />
           <Route
-            path="/my-bookings"
+            path="/create-booking"
             element={
-              <ProtectedRoute>
-                <UserOnlyRoute>
-                  <UserBookingsPage />
-                </UserOnlyRoute>
+              <ProtectedRoute adminOnly>
+                <ConfirmBookingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/room-occupancy"
+            element={
+              <ProtectedRoute adminOnly>
+                <RoomOccupancyPage />
               </ProtectedRoute>
             }
           />
@@ -93,7 +61,15 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <ProfilePage />
+                {isAdmin ? <Navigate to="/" replace /> : <ProfilePage />}
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-bookings"
+            element={
+              <ProtectedRoute>
+                {isAdmin ? <Navigate to="/bookings" replace /> : <UserBookingsPage />}
               </ProtectedRoute>
             }
           />

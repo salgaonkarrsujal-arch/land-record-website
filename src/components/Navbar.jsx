@@ -7,17 +7,22 @@ function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const { isAdmin, isAuthenticated, logout, profile } = useAuth();
-  const visibleLinks = !isAuthenticated
-    ? []
-    : isAdmin
-    ? navLinks.filter((link) => link.to === "/bookings")
-    : navLinks.filter((link) => !(link.to === "/bookings" && !isAdmin));
+  const hasAdminSession = isAuthenticated && isAdmin;
+  const hasUserSession = isAuthenticated && !isAdmin;
+  const visibleLinks = hasAdminSession
+    ? navLinks
+    : hasUserSession
+    ? [
+        { label: "Home", to: "/" },
+        { label: "Profile", to: "/profile" }
+      ]
+    : [];
 
   return (
     <header className="site-header">
       <div className="header-banner">
         <div className="container header-banner-inner">
-          <Link className="banner-logo banner-logo-left" to={isAuthenticated ? (isAdmin ? "/bookings" : "/") : "/login"}>
+          <Link className="banner-logo banner-logo-left" to={isAuthenticated ? "/" : "/login"}>
             <img src="mahabhulekh-logo.png" alt="Land Records Maharashtra logo" />
           </Link>
 
@@ -29,7 +34,7 @@ function Navbar() {
             <p>ई-मेल (ऑ): landrecord12020@gmail.com</p>
           </div>
 
-          <Link className="banner-logo banner-logo-right" to={isAuthenticated ? (isAdmin ? "/bookings" : "/") : "/login"}>
+          <Link className="banner-logo banner-logo-right" to={isAuthenticated ? "/" : "/login"}>
             <img src="academy-seal.png" alt="Land Records Training Academy seal" />
           </Link>
         </div>
@@ -37,7 +42,7 @@ function Navbar() {
 
       <div className="header-nav-bar">
         <div className="container navbar">
-          <Link className="brand brand-compact" to={isAuthenticated ? (isAdmin ? "/bookings" : "/") : "/login"}>
+          <Link className="brand brand-compact" to={isAuthenticated ? "/" : "/login"}>
             <img className="brand-logo" src="academy-seal.png" alt="Land Records Training Academy seal" />
             <span className="brand-text">
               <strong>Land Records</strong>
@@ -62,10 +67,10 @@ function Navbar() {
                 {link.label}
               </NavLink>
             ))}
-            {isAuthenticated && !isAdmin ? (
-              <NavLink to="/my-bookings" onClick={() => setMenuOpen(false)}>
-                My Bookings
-              </NavLink>
+            {!isAuthenticated ? (
+              <Link className="auth-button secondary" to="/login" onClick={() => setMenuOpen(false)}>
+                Login
+              </Link>
             ) : null}
             {isAuthenticated ? (
               <div className="profile-menu">
@@ -86,23 +91,12 @@ function Navbar() {
                         {(profile?.displayName || profile?.email || "U").charAt(0).toUpperCase()}
                       </span>
                       <div className="profile-popup-copy">
-                        <strong>{isAdmin ? "Admin Panel" : profile?.displayName || "Signed in"}</strong>
+                        <strong>{hasAdminSession ? "Admin Panel" : profile?.displayName || "User Profile"}</strong>
                         <small>{profile?.email || "Land Records Training Academy"}</small>
                       </div>
                     </div>
 
-                    <NavLink
-                      className="profile-popup-link"
-                      to="/profile"
-                      onClick={() => {
-                        setProfileMenuOpen(false);
-                        setMenuOpen(false);
-                      }}
-                    >
-                      Profile Settings
-                    </NavLink>
-
-                    {!isAdmin ? (
+                    {hasUserSession ? (
                       <NavLink
                         className="profile-popup-link"
                         to="/my-bookings"
@@ -128,11 +122,7 @@ function Navbar() {
                   </div>
                 ) : null}
               </div>
-            ) : (
-              <Link className="auth-button secondary" to="/login" onClick={() => setMenuOpen(false)}>
-                Login
-              </Link>
-            )}
+            ) : null}
           </nav>
         </div>
       </div>
