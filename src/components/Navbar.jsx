@@ -6,11 +6,13 @@ import { useAuth } from "../context/AuthContext";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const { isAdmin, isAuthenticated, logout, profile } = useAuth();
+  const { isAdmin, isAuthenticated, isMainAdmin, logout, profile } = useAuth();
   const hasAdminSession = isAuthenticated && isAdmin;
   const hasUserSession = isAuthenticated && !isAdmin;
   const visibleLinks = hasAdminSession
-    ? navLinks
+    ? isMainAdmin
+      ? [...navLinks, { label: "Manage Admins", to: "/manage-admins" }]
+      : navLinks
     : hasUserSession
     ? [
         { label: "Home", to: "/" },
@@ -106,6 +108,32 @@ function Navbar() {
                         }}
                       >
                         My Bookings
+                      </NavLink>
+                    ) : null}
+
+                    {hasAdminSession ? (
+                      <NavLink
+                        className="profile-popup-link"
+                        to="/profile"
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Profile Settings
+                      </NavLink>
+                    ) : null}
+
+                    {isMainAdmin ? (
+                      <NavLink
+                        className="profile-popup-link"
+                        to="/manage-admins"
+                        onClick={() => {
+                          setProfileMenuOpen(false);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        Manage Admins
                       </NavLink>
                     ) : null}
 

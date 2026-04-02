@@ -10,6 +10,7 @@ import RoomOccupancyPage from "./pages/RoomOccupancyPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import UserBookingsPage from "./pages/UserBookingsPage";
+import AdminUsersPage from "./pages/AdminUsersPage";
 
 function App() {
   const { isAdmin, isAuthenticated, isProfileComplete, loading } = useAuth();
@@ -58,10 +59,18 @@ function App() {
             }
           />
           <Route
+            path="/manage-admins"
+            element={
+              <ProtectedRoute mainAdminOnly>
+                <AdminUsersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/profile"
             element={
               <ProtectedRoute>
-                {isAdmin ? <Navigate to="/" replace /> : <ProfilePage />}
+                <ProfilePage />
               </ProtectedRoute>
             }
           />
