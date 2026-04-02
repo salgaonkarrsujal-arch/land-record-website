@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
@@ -26,4 +26,14 @@ if (isFirebaseConfigured) {
   database = getDatabase(app);
 }
 
-export { app, auth, database, firebaseConfig, isFirebaseConfigured };
+function getSecondaryAuth(appName = "admin-user-creator") {
+  if (!isFirebaseConfigured) {
+    return null;
+  }
+
+  const existingApp = getApps().find((item) => item.name === appName);
+  const secondaryApp = existingApp || initializeApp(firebaseConfig, appName);
+  return getAuth(secondaryApp);
+}
+
+export { app, auth, database, firebaseConfig, getSecondaryAuth, isFirebaseConfigured };

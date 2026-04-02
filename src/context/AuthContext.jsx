@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   browserLocalPersistence,
+  createUserWithEmailAndPassword,
   getRedirectResult,
   GoogleAuthProvider,
   RecaptchaVerifier,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   setPersistence,
   signInWithRedirect,
   updateProfile as updateFirebaseProfile,
@@ -14,7 +16,7 @@ import {
   signOut
 } from "firebase/auth";
 import { get, ref, set, update } from "firebase/database";
-import { auth, database, isFirebaseConfigured } from "../lib/firebase";
+import { auth, database, getSecondaryAuth, isFirebaseConfigured } from "../lib/firebase";
 
 const AuthContext = createContext(null);
 
@@ -22,6 +24,56 @@ const adminEmails = (import.meta.env.VITE_ADMIN_EMAILS || "")
   .split(",")
   .map((email) => email.trim().toLowerCase())
   .filter(Boolean);
+const mainAdminEmail = String(import.meta.env.VITE_MAIN_ADMIN_EMAIL || "")
+  .trim()
+  .toLowerCase();
+
+function isAdminRole(role) {
+  return role === "admin" || role === "main_admin";
+}
+
+function resolveRole(email, storedRole = "user") {
+  const normalizedEmail = String(email || "")
+    .trim()
+    .toLowerCase();
+
+  if (normalizedEmail && normalizedEmail === mainAdminEmail) {
+    return "main_admin";
+  }
+
+  if (storedRole === "main_admin") {
+    return mainAdminEmail ? "user" : "main_admin";
+  }
+
+  if (storedRole === "admin") {
+    return "admin";
+  }
+
+  if (normalizedEmail && adminEmails.includes(normalizedEmail)) {
+    return "admin";
+  }
+
+  return "user";
+}
+
+function isProfileComplete(profile) {
+  if (!profile) {
+    return false;
+  }
+
+  if (isAdminRole(profile.role)) {
+    return true;
+  }
+
+  return Boolean(
+    profile.displayName &&
+      profile.phoneNumber &&
+      profile.office &&
+      profile.designation &&
+      profile.adminWork &&
+      profile.workType
+  );
+}
 
 function isMobileBrowser() {
   if (typeof navigator === "undefined") {
@@ -32,7 +84,7 @@ function isMobileBrowser() {
 }
 
 function normalizeUserProfile(firebaseUser, role = "user", extra = {}) {
-  return {
+  const nextProfile = {
     uid: firebaseUser.uid,
     displayName: firebaseUser.displayName || extra.displayName || "",
     email: firebaseUser.email || extra.email || "",
@@ -41,7 +93,15 @@ function normalizeUserProfile(firebaseUser, role = "user", extra = {}) {
     providerId: firebaseUser.providerData?.[0]?.providerId || "custom",
     office: extra.office || "",
     designation: extra.designation || "",
+    adminWork: extra.adminWork || "",
+    workType: extra.workType || "",
+    remarks: extra.remarks || "",
     updatedAt: new Date().toISOString()
+  };
+
+  return {
+    ...nextProfile,
+    profileComplete: isProfileComplete(nextProfile)
   };
 }
 
@@ -54,15 +114,33 @@ async function upsertUserProfile(firebaseUser, role = "user", extra = {}) {
   const snapshot = await get(userRef);
   const base = normalizeUserProfile(firebaseUser, role, extra);
   const existing = snapshot.exists() ? snapshot.val() : null;
+  const resolvedRole = resolveRole(
+    base.email || existing?.email || extra.email,
+    existing?.role || role || "user"
+  );
   const nextProfile = existing
     ? {
         ...existing,
-        ...base
+        uid: firebaseUser.uid,
+        displayName: base.displayName || existing.displayName || "",
+        email: base.email || existing.email || "",
+        phoneNumber: base.phoneNumber || existing.phoneNumber || "",
+        role: resolvedRole,
+        providerId: base.providerId || existing.providerId || "custom",
+        office: extra.office ?? existing.office ?? "",
+        designation: extra.designation ?? existing.designation ?? "",
+        adminWork: extra.adminWork ?? existing.adminWork ?? "",
+        workType: extra.workType ?? existing.workType ?? "",
+        remarks: extra.remarks ?? existing.remarks ?? "",
+        updatedAt: base.updatedAt
       }
     : {
         ...base,
+        role: resolvedRole,
         createdAt: new Date().toISOString()
       };
+
+  nextProfile.profileComplete = isProfileComplete(nextProfile);
 
   if (existing) {
     await update(userRef, nextProfile);
@@ -71,6 +149,24 @@ async function upsertUserProfile(firebaseUser, role = "user", extra = {}) {
   }
 
   return { uid: firebaseUser.uid, ...nextProfile };
+}
+
+async function findUserProfileByEmail(email) {
+  if (!database || !email) {
+    return null;
+  }
+
+  const normalizedEmail = String(email).trim().toLowerCase();
+  const snapshot = await get(ref(database, "users"));
+
+  if (!snapshot.exists()) {
+    return null;
+  }
+
+  const users = Object.values(snapshot.val());
+  return (
+    users.find((item) => String(item.email || "").trim().toLowerCase() === normalizedEmail) || null
+  );
 }
 
 export function AuthProvider({ children }) {
@@ -98,10 +194,7 @@ export function AuthProvider({ children }) {
         const redirectResult = await getRedirectResult(auth);
 
         if (redirectResult?.user) {
-          const role =
-            redirectResult.user.email && adminEmails.includes(redirectResult.user.email.toLowerCase())
-              ? "admin"
-              : "user";
+          const role = resolveRole(redirectResult.user.email);
           const userProfile = await upsertUserProfile(redirectResult.user, role);
           setProfile(userProfile);
         }
@@ -118,8 +211,7 @@ export function AuthProvider({ children }) {
           return;
         }
 
-        const emailRole =
-          firebaseUser.email && adminEmails.includes(firebaseUser.email.toLowerCase()) ? "admin" : "user";
+        const emailRole = resolveRole(firebaseUser.email);
         const userProfile = await upsertUserProfile(firebaseUser, emailRole);
 
         setProfile(userProfile);
@@ -148,10 +240,35 @@ export function AuthProvider({ children }) {
     }
 
     const result = await signInWithPopup(auth, provider);
-    const role = result.user.email && adminEmails.includes(result.user.email.toLowerCase()) ? "admin" : "user";
+    const role = resolveRole(result.user.email);
     const userProfile = await upsertUserProfile(result.user, role);
     setProfile(userProfile);
     return result.user;
+  };
+
+  const signInUser = async (email, password) => {
+    ensureConfigured();
+    const result = await signInWithEmailAndPassword(auth, email, password);
+    const role = resolveRole(email);
+    const userProfile = await upsertUserProfile(result.user, role, { email });
+    setProfile(userProfile);
+    return result.user;
+  };
+
+  const signUpUser = async ({ email, password, displayName }) => {
+    ensureConfigured();
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    const userProfile = await upsertUserProfile(result.user, "user", {
+      email,
+      displayName
+    });
+    setProfile(userProfile);
+    return result.user;
+  };
+
+  const resetUserPassword = async (email) => {
+    ensureConfigured();
+    await sendPasswordResetEmail(auth, email);
   };
 
   const setupPhoneVerifier = (containerId = "phone-recaptcha") => {
@@ -190,16 +307,69 @@ export function AuthProvider({ children }) {
   const signInAdmin = async (email, password) => {
     ensureConfigured();
     const result = await signInWithEmailAndPassword(auth, email, password);
-    const normalizedEmail = email.toLowerCase();
+    const databaseProfile = await findUserProfileByEmail(email);
+    const resolvedRole = resolveRole(email, databaseProfile?.role || "user");
 
-    if (!adminEmails.includes(normalizedEmail)) {
+    if (!isAdminRole(resolvedRole)) {
       await signOut(auth);
       throw new Error("This account is not allowed to access admin features.");
     }
 
-    const userProfile = await upsertUserProfile(result.user, "admin", { email });
+    const userProfile = await upsertUserProfile(result.user, resolvedRole, { email, ...databaseProfile });
     setProfile(userProfile);
     return result.user;
+  };
+
+  const createAdminUser = async ({ email, password }) => {
+    ensureConfigured();
+
+    if (!auth.currentUser || profile?.role !== "main_admin") {
+      throw new Error("Only the main admin can create admin users.");
+    }
+
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+
+    if (!normalizedEmail || !password) {
+      throw new Error("Enter admin email and password.");
+    }
+
+    if (normalizedEmail === mainAdminEmail) {
+      throw new Error("This email is already reserved as the main admin.");
+    }
+
+    const secondaryAuth = getSecondaryAuth();
+
+    if (!secondaryAuth) {
+      throw new Error("Secondary Firebase auth is not available.");
+    }
+
+    const created = await createUserWithEmailAndPassword(secondaryAuth, normalizedEmail, password);
+    const displayName = normalizedEmail.split("@")[0].replace(/[._-]+/g, " ");
+    const createdAt = new Date().toISOString();
+
+    await set(ref(database, `users/${created.user.uid}`), {
+      uid: created.user.uid,
+      displayName: displayName
+        .split(" ")
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" "),
+      email: normalizedEmail,
+      phoneNumber: "",
+      role: "admin",
+      providerId: "password",
+      office: "",
+      designation: "Admin",
+      adminWork: "",
+      workType: "Admin Access",
+      remarks: "",
+      profileComplete: true,
+      createdAt,
+      updatedAt: createdAt
+    });
+
+    await signOut(secondaryAuth);
+    return created.user;
   };
 
   const logout = async () => {
@@ -238,13 +408,19 @@ export function AuthProvider({ children }) {
       profile,
       loading,
       isAuthenticated: Boolean(currentUser),
-      isAdmin: profile?.role === "admin",
+      isAdmin: isAdminRole(profile?.role),
+      isMainAdmin: profile?.role === "main_admin",
+      isProfileComplete: Boolean(profile?.profileComplete),
       confirmationResult,
       isFirebaseConfigured,
       signInWithGoogleUser,
+      signInUser,
+      signUpUser,
+      resetUserPassword,
       startPhoneLogin,
       verifyPhoneOtp,
       signInAdmin,
+      createAdminUser,
       saveProfile,
       logout
     }),
