@@ -30,6 +30,7 @@ function AdminUsersPage() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
   const [verifyingPassword, setVerifyingPassword] = useState(false);
+  const [showPasswordFallback, setShowPasswordFallback] = useState(false);
 
   useEffect(() => {
     async function loadUsers() {
@@ -108,6 +109,7 @@ function AdminUsersPage() {
       );
       setFormValues(initialForm);
       resetAdminOtpVerification();
+      setShowPasswordFallback(false);
     } catch (createError) {
       if (createError.code === "auth/email-already-in-use") {
         setError("That email already exists and cannot be created again. If it belongs to a registered user, it will be promoted automatically.");
@@ -124,6 +126,7 @@ function AdminUsersPage() {
   const handleSendOtp = async () => {
     setError("");
     setMessage("");
+    setShowPasswordFallback(false);
     setSendingOtp(true);
 
     try {
@@ -134,8 +137,10 @@ function AdminUsersPage() {
         otpError.code === "auth/billing-not-enabled" ||
         otpError.code === "auth/operation-not-allowed"
       ) {
+        setShowPasswordFallback(true);
         setError("Firebase Phone OTP is not available for this project yet. Enable Phone Authentication and billing first.");
       } else if (otpError.code === "auth/invalid-app-credential") {
+        setShowPasswordFallback(true);
         setError("Phone OTP verification failed for this app configuration. Use the main admin password verification below or fix the Firebase phone-auth setup.");
       } else {
         setError(otpError.message || "Failed to send OTP.");
@@ -234,30 +239,34 @@ function AdminUsersPage() {
           </div>
         </article>
 
+        <div className="admin-main-grid">
         <article className="confirm-card admin-manage-card">
-          <div className="booking-form-header">
-            <h2>Create New Admin</h2>
-            <p>Enter the admin email. If the email already belongs to a registered user, the website will promote that user to admin access after main admin mobile verification.</p>
-          </div>
+          <div className="admin-create-shell">
+            <div className="user-access-copy user-access-copy-clean admin-create-copy">
+              <strong>Create New Admin</strong>
+              <p>Enter the admin email. If the email already belongs to a registered user, the website will promote that user to admin access after main admin mobile verification.</p>
+            </div>
 
-          {error ? <p className="auth-error">{error}</p> : null}
-          {message ? <p className="auth-success">{message}</p> : null}
+            {error ? <p className="auth-error admin-create-feedback">{error}</p> : null}
+            {message ? <p className="auth-success admin-create-feedback">{message}</p> : null}
 
-          <form className="auth-form auth-form-wide admin-create-form" onSubmit={handleCreateAdmin}>
-            <label>
-              Admin Email
-              <input
-                name="email"
-                type="email"
-                value={formValues.email}
-                onChange={handleChange}
-                placeholder="newadmin@example.com"
-                autoComplete="email"
-              />
-            </label>
+            <form className="auth-form auth-form-wide auth-form-clean admin-create-form" onSubmit={handleCreateAdmin}>
+            <div className="admin-create-grid">
+              <label>
+                <span>Admin Email</span>
+                <input
+                  name="email"
+                  type="email"
+                  value={formValues.email}
+                  onChange={handleChange}
+                  placeholder="newadmin@example.com"
+                  autoComplete="email"
+                />
+              </label>
+            </div>
 
-            <label>
-              Admin Password
+            <label className="admin-password-field">
+              <span>Admin Password</span>
               <input
                 name="password"
                 type="password"
@@ -269,25 +278,30 @@ function AdminUsersPage() {
             </label>
 
             <p className="admin-inline-note">
-              If this email already belongs to a user account, the existing account will be promoted to admin and its current login method will stay the same.
+              Existing user emails are promoted to admin automatically. New emails create a fresh admin account.
             </p>
 
-            <div className="admin-otp-block">
-              <div className="admin-otp-row">
+            <section className="admin-verify-card admin-verify-card-primary">
+              <div className="admin-verify-head">
                 <div className="admin-otp-copy">
-                  <strong>Main Admin Mobile</strong>
+                  <strong>Step 1: Verify by Mobile OTP</strong>
                   <span>{profile?.phoneNumber || "Add phone number in main admin profile first"}</span>
                 </div>
-                <button type="button" className="small-button" onClick={handleSendOtp} disabled={sendingOtp || !profile?.phoneNumber}>
-                  {sendingOtp ? "Sending OTP..." : "Send OTP"}
+                <button
+                  type="button"
+                  className="small-button"
+                  onClick={handleSendOtp}
+                  disabled={sendingOtp || !profile?.phoneNumber}
+                >
+                  {sendingOtp ? "Sending..." : "Send OTP"}
                 </button>
               </div>
 
               <div id="admin-phone-recaptcha" className="admin-phone-recaptcha" />
 
-              <div className="admin-otp-row">
+              <div className="admin-verify-row">
                 <label className="admin-otp-field">
-                  OTP Code
+                  <span>OTP Code</span>
                   <input
                     name="otpCode"
                     value={formValues.otpCode}
@@ -300,33 +314,46 @@ function AdminUsersPage() {
                   {verifyingOtp ? "Verifying..." : adminOtpVerified ? "Verified" : "Verify OTP"}
                 </button>
               </div>
+            </section>
 
-              <div className="admin-otp-divider">
-                <span>or verify with main admin password</span>
-              </div>
+            {showPasswordFallback ? (
+              <section className="admin-verify-card admin-verify-card-secondary">
+                <div className="admin-otp-copy">
+                  <strong>Step 2: Password Fallback</strong>
+                  <span>OTP failed, so verify here with the main admin password.</span>
+                </div>
 
-              <div className="admin-otp-row">
-                <label className="admin-otp-field">
-                  Main Admin Password
-                  <input
-                    name="currentPassword"
-                    type="password"
-                    value={formValues.currentPassword}
-                    onChange={handleChange}
-                    placeholder="Enter current main admin password"
-                    autoComplete="current-password"
-                  />
-                </label>
-                <button type="button" className="small-button" onClick={handleVerifyPassword} disabled={verifyingPassword}>
-                  {verifyingPassword ? "Verifying..." : adminOtpVerified ? "Verified" : "Verify Password"}
-                </button>
-              </div>
+                <div className="admin-verify-row">
+                  <label className="admin-otp-field">
+                    <span>Main Admin Password</span>
+                    <input
+                      name="currentPassword"
+                      type="password"
+                      value={formValues.currentPassword}
+                      onChange={handleChange}
+                      placeholder="Enter current main admin password"
+                      autoComplete="current-password"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="small-button"
+                    onClick={handleVerifyPassword}
+                    disabled={verifyingPassword}
+                  >
+                    {verifyingPassword ? "Verifying..." : adminOtpVerified ? "Verified" : "Verify Password"}
+                  </button>
+                </div>
+              </section>
+            ) : null}
+
+            <div className="admin-create-actions">
+              <button type="submit" className="auth-primary-button admin-create-submit" disabled={submitting}>
+                {submitting ? "Creating Admin..." : "Create Admin User"}
+              </button>
             </div>
-
-            <button type="submit" className="small-button" disabled={submitting}>
-              {submitting ? "Creating Admin..." : "Create Admin User"}
-            </button>
-          </form>
+            </form>
+          </div>
         </article>
 
         <article className="confirm-card admin-manage-card">
@@ -361,6 +388,7 @@ function AdminUsersPage() {
             ))}
           </div>
         </article>
+        </div>
       </div>
     </section>
   );
