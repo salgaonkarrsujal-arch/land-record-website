@@ -2,10 +2,12 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   browserLocalPersistence,
   createUserWithEmailAndPassword,
+  EmailAuthProvider,
   getRedirectResult,
   GoogleAuthProvider,
   RecaptchaVerifier,
   onAuthStateChanged,
+  reauthenticateWithCredential,
   sendPasswordResetEmail,
   setPersistence,
   signInWithRedirect,
@@ -174,6 +176,8 @@ export function AuthProvider({ children }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [confirmationResult, setConfirmationResult] = useState(null);
+  const [adminOtpConfirmation, setAdminOtpConfirmation] = useState(null);
+  const [adminOtpVerified, setAdminOtpVerified] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured || !auth) {
@@ -304,6 +308,89 @@ export function AuthProvider({ children }) {
     return result.user;
   };
 
+  const startAdminOtp = async (phoneNumber, containerId = "admin-phone-recaptcha") => {
+    ensureConfigured();
+
+    if (!phoneNumber) {
+      throw new Error("Main admin phone number is missing. Add it in the profile first.");
+    }
+
+    const secondaryAuth = getSecondaryAuth("main-admin-otp");
+
+    if (!secondaryAuth) {
+      throw new Error("Secondary Firebase auth is not available.");
+    }
+
+    if (window.adminRecaptchaVerifier) {
+      window.adminRecaptchaVerifier.clear();
+    }
+
+    const verifier = new RecaptchaVerifier(secondaryAuth, containerId, {
+      size: "normal"
+    });
+
+    window.adminRecaptchaVerifier = verifier;
+    await verifier.render();
+
+    const result = await signInWithPhoneNumber(secondaryAuth, phoneNumber, verifier);
+    setAdminOtpConfirmation(result);
+    setAdminOtpVerified(false);
+    return result;
+  };
+
+  const verifyAdminOtp = async (otpCode) => {
+    if (!adminOtpConfirmation) {
+      throw new Error("Request the OTP first.");
+    }
+
+    const secondaryAuth = getSecondaryAuth("main-admin-otp");
+    const result = await adminOtpConfirmation.confirm(otpCode);
+
+    if (secondaryAuth) {
+      await signOut(secondaryAuth);
+    }
+
+    if (window.adminRecaptchaVerifier) {
+      window.adminRecaptchaVerifier.clear();
+      window.adminRecaptchaVerifier = null;
+    }
+
+    setAdminOtpConfirmation(null);
+    setAdminOtpVerified(true);
+    return result.user;
+  };
+
+  const resetAdminOtpVerification = () => {
+    if (window.adminRecaptchaVerifier) {
+      window.adminRecaptchaVerifier.clear();
+      window.adminRecaptchaVerifier = null;
+    }
+
+    setAdminOtpConfirmation(null);
+    setAdminOtpVerified(false);
+  };
+
+  const verifyMainAdminPassword = async (currentPassword) => {
+    ensureConfigured();
+
+    if (!auth.currentUser || profile?.role !== "main_admin") {
+      throw new Error("Only the main admin can verify this action.");
+    }
+
+    if (!currentPassword) {
+      throw new Error("Enter the main admin password.");
+    }
+
+    if (!auth.currentUser.email) {
+      throw new Error("Main admin email is missing for verification.");
+    }
+
+    const credential = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+    await reauthenticateWithCredential(auth.currentUser, credential);
+    setAdminOtpVerified(true);
+    return true;
+  };
+
   const signInAdmin = async (email, password) => {
     ensureConfigured();
     const result = await signInWithEmailAndPassword(auth, email, password);
@@ -335,6 +422,30 @@ export function AuthProvider({ children }) {
 
     if (normalizedEmail === mainAdminEmail) {
       throw new Error("This email is already reserved as the main admin.");
+    }
+
+    const existingProfile = await findUserProfileByEmail(normalizedEmail);
+
+    if (existingProfile?.role === "admin" || existingProfile?.role === "main_admin") {
+      throw new Error("This email already has admin access.");
+    }
+
+    if (existingProfile?.uid) {
+      const updatedAt = new Date().toISOString();
+
+      await update(ref(database, `users/${existingProfile.uid}`), {
+        role: "admin",
+        designation: existingProfile.designation || "Admin",
+        workType: existingProfile.workType || "Admin Access",
+        profileComplete: true,
+        updatedAt
+      });
+
+      return {
+        uid: existingProfile.uid,
+        email: normalizedEmail,
+        promotedExistingUser: true
+      };
     }
 
     const secondaryAuth = getSecondaryAuth();
@@ -412,6 +523,7 @@ export function AuthProvider({ children }) {
       isMainAdmin: profile?.role === "main_admin",
       isProfileComplete: Boolean(profile?.profileComplete),
       confirmationResult,
+      adminOtpVerified,
       isFirebaseConfigured,
       signInWithGoogleUser,
       signInUser,
@@ -419,12 +531,16 @@ export function AuthProvider({ children }) {
       resetUserPassword,
       startPhoneLogin,
       verifyPhoneOtp,
+      startAdminOtp,
+      verifyAdminOtp,
+      verifyMainAdminPassword,
+      resetAdminOtpVerification,
       signInAdmin,
       createAdminUser,
       saveProfile,
       logout
     }),
-    [confirmationResult, currentUser, loading, profile]
+    [adminOtpVerified, confirmationResult, currentUser, loading, profile]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

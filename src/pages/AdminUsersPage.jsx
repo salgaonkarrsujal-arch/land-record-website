@@ -5,11 +5,21 @@ import { useAuth } from "../context/AuthContext";
 
 const initialForm = {
   email: "",
-  password: ""
+  password: "",
+  otpCode: "",
+  currentPassword: ""
 };
 
 function AdminUsersPage() {
-  const { profile, createAdminUser } = useAuth();
+  const {
+    profile,
+    adminOtpVerified,
+    createAdminUser,
+    resetAdminOtpVerification,
+    startAdminOtp,
+    verifyAdminOtp,
+    verifyMainAdminPassword
+  } = useAuth();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [formValues, setFormValues] = useState(initialForm);
@@ -17,6 +27,9 @@ function AdminUsersPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [updatingUid, setUpdatingUid] = useState("");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [verifyingPassword, setVerifyingPassword] = useState(false);
 
   useEffect(() => {
     async function loadUsers() {
@@ -54,6 +67,11 @@ function AdminUsersPage() {
       return;
     }
 
+    if (!adminOtpVerified) {
+      setError("Verify the main admin mobile OTP before creating a new admin.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
@@ -83,11 +101,16 @@ function AdminUsersPage() {
           String(first.displayName || first.email || "").localeCompare(String(second.displayName || second.email || ""))
         )
       );
-      setMessage("New admin account created successfully.");
+      setMessage(
+        createdUser.promotedExistingUser
+          ? "Existing user account was upgraded to admin access."
+          : "New admin account created successfully."
+      );
       setFormValues(initialForm);
+      resetAdminOtpVerification();
     } catch (createError) {
       if (createError.code === "auth/email-already-in-use") {
-        setError("That email already has an account. Use another email for the admin account.");
+        setError("That email already exists and cannot be created again. If it belongs to a registered user, it will be promoted automatically.");
       } else if (createError.code === "auth/weak-password") {
         setError("Use a stronger password with at least 6 characters.");
       } else {
@@ -95,6 +118,72 @@ function AdminUsersPage() {
       }
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    setError("");
+    setMessage("");
+    setSendingOtp(true);
+
+    try {
+      await startAdminOtp(profile?.phoneNumber, "admin-phone-recaptcha");
+      setMessage("OTP sent to the main admin mobile number.");
+    } catch (otpError) {
+      if (
+        otpError.code === "auth/billing-not-enabled" ||
+        otpError.code === "auth/operation-not-allowed"
+      ) {
+        setError("Firebase Phone OTP is not available for this project yet. Enable Phone Authentication and billing first.");
+      } else if (otpError.code === "auth/invalid-app-credential") {
+        setError("Phone OTP verification failed for this app configuration. Use the main admin password verification below or fix the Firebase phone-auth setup.");
+      } else {
+        setError(otpError.message || "Failed to send OTP.");
+      }
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyPassword = async () => {
+    setError("");
+    setMessage("");
+
+    if (!formValues.currentPassword) {
+      setError("Enter the main admin password first.");
+      return;
+    }
+
+    setVerifyingPassword(true);
+
+    try {
+      await verifyMainAdminPassword(formValues.currentPassword);
+      setMessage("Main admin password verified successfully.");
+    } catch (verifyError) {
+      setError(verifyError.message || "Password verification failed.");
+    } finally {
+      setVerifyingPassword(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    setError("");
+    setMessage("");
+
+    if (!formValues.otpCode) {
+      setError("Enter the OTP code sent to the main admin mobile.");
+      return;
+    }
+
+    setVerifyingOtp(true);
+
+    try {
+      await verifyAdminOtp(formValues.otpCode);
+      setMessage("Main admin mobile verified successfully.");
+    } catch (otpError) {
+      setError(otpError.message || "Failed to verify OTP.");
+    } finally {
+      setVerifyingOtp(false);
     }
   };
 
@@ -148,7 +237,7 @@ function AdminUsersPage() {
         <article className="confirm-card admin-manage-card">
           <div className="booking-form-header">
             <h2>Create New Admin</h2>
-            <p>Enter the admin email and password here. The website will create the admin account directly.</p>
+            <p>Enter the admin email. If the email already belongs to a registered user, the website will promote that user to admin access after main admin mobile verification.</p>
           </div>
 
           {error ? <p className="auth-error">{error}</p> : null}
@@ -178,6 +267,61 @@ function AdminUsersPage() {
                 autoComplete="new-password"
               />
             </label>
+
+            <p className="admin-inline-note">
+              If this email already belongs to a user account, the existing account will be promoted to admin and its current login method will stay the same.
+            </p>
+
+            <div className="admin-otp-block">
+              <div className="admin-otp-row">
+                <div className="admin-otp-copy">
+                  <strong>Main Admin Mobile</strong>
+                  <span>{profile?.phoneNumber || "Add phone number in main admin profile first"}</span>
+                </div>
+                <button type="button" className="small-button" onClick={handleSendOtp} disabled={sendingOtp || !profile?.phoneNumber}>
+                  {sendingOtp ? "Sending OTP..." : "Send OTP"}
+                </button>
+              </div>
+
+              <div id="admin-phone-recaptcha" className="admin-phone-recaptcha" />
+
+              <div className="admin-otp-row">
+                <label className="admin-otp-field">
+                  OTP Code
+                  <input
+                    name="otpCode"
+                    value={formValues.otpCode}
+                    onChange={handleChange}
+                    placeholder="Enter OTP"
+                    inputMode="numeric"
+                  />
+                </label>
+                <button type="button" className="small-button" onClick={handleVerifyOtp} disabled={verifyingOtp}>
+                  {verifyingOtp ? "Verifying..." : adminOtpVerified ? "Verified" : "Verify OTP"}
+                </button>
+              </div>
+
+              <div className="admin-otp-divider">
+                <span>or verify with main admin password</span>
+              </div>
+
+              <div className="admin-otp-row">
+                <label className="admin-otp-field">
+                  Main Admin Password
+                  <input
+                    name="currentPassword"
+                    type="password"
+                    value={formValues.currentPassword}
+                    onChange={handleChange}
+                    placeholder="Enter current main admin password"
+                    autoComplete="current-password"
+                  />
+                </label>
+                <button type="button" className="small-button" onClick={handleVerifyPassword} disabled={verifyingPassword}>
+                  {verifyingPassword ? "Verifying..." : adminOtpVerified ? "Verified" : "Verify Password"}
+                </button>
+              </div>
+            </div>
 
             <button type="submit" className="small-button" disabled={submitting}>
               {submitting ? "Creating Admin..." : "Create Admin User"}
