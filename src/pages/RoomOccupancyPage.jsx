@@ -2,7 +2,6 @@ import { onValue, ref } from "firebase/database";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { hostelLayoutsByWing, hostelOptions, normalizeHostelRoom } from "../data/hostelLayout";
-import { bookings } from "../data/siteContent";
 import { database, isFirebaseConfigured } from "../lib/firebase";
 
 function getCandidateNames(booking) {
@@ -39,12 +38,13 @@ function getCandidateContacts(booking) {
 
 function RoomOccupancyPage() {
   const navigate = useNavigate();
-  const [records, setRecords] = useState(bookings);
+  const [records, setRecords] = useState([]);
   const [selectedHostel, setSelectedHostel] = useState(hostelOptions[0].bookingValue);
   const [selectedRoom, setSelectedRoom] = useState("");
 
   useEffect(() => {
     if (!isFirebaseConfigured || !database) {
+      setRecords([]);
       return undefined;
     }
 
@@ -52,7 +52,7 @@ function RoomOccupancyPage() {
     const unsubscribe = onValue(bookingsRef, (snapshot) => {
       const value = snapshot.exists() ? snapshot.val() : {};
       const docs = Object.entries(value).map(([id, item]) => ({ id, ...item }));
-      setRecords(docs.length > 0 ? docs : bookings);
+      setRecords(docs);
     });
 
     return () => unsubscribe();
