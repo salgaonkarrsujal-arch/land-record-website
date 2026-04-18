@@ -1,21 +1,19 @@
-import { get, ref } from "firebase/database";
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { database, isFirebaseConfigured } from "../lib/firebase";
+
+const DEFAULT_COUNTRY_CODE = "+91";
 
 function ProfilePage() {
-  const { currentUser, isAdmin, profile, saveProfile } = useAuth();
-  const [stats, setStats] = useState({
-    totalBookings: 0,
-    activeStays: 0,
-    adminManaged: 0
-  });
+  const { currentUser, profile, saveProfile, isAdmin, isProfileComplete } = useAuth();
   const [formValues, setFormValues] = useState({
     displayName: "",
     email: "",
-    phoneNumber: "",
+    phoneNumber: DEFAULT_COUNTRY_CODE,
     office: "",
-    designation: ""
+    designation: "",
+    adminWork: "",
+    workType: "",
+    remarks: ""
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -24,34 +22,25 @@ function ProfilePage() {
     setFormValues({
       displayName: profile?.displayName || currentUser?.displayName || "",
       email: profile?.email || currentUser?.email || "",
-      phoneNumber: profile?.phoneNumber || currentUser?.phoneNumber || "",
+      phoneNumber: profile?.phoneNumber || currentUser?.phoneNumber || DEFAULT_COUNTRY_CODE,
       office: profile?.office || "",
-      designation: profile?.designation || ""
+      designation: profile?.designation || "",
+      adminWork: profile?.adminWork || "",
+      workType: profile?.workType || "",
+      remarks: profile?.remarks || ""
     });
   }, [currentUser, profile]);
 
-  useEffect(() => {
-    async function loadStats() {
-      if (!isFirebaseConfigured || !database || !currentUser) {
-        return;
-      }
-
-      const snapshot = await get(ref(database, "bookings"));
-      const value = snapshot.exists() ? snapshot.val() : {};
-      const docs = Object.values(value).filter((item) => isAdmin || item.userId === currentUser.uid);
-
-      setStats({
-        totalBookings: docs.length,
-        activeStays: docs.filter((item) => item.services?.toLowerCase().includes("stay")).length,
-        adminManaged: docs.filter((item) => item.createdByRole === "admin").length
-      });
-    }
-
-    loadStats();
-  }, [currentUser, isAdmin]);
-
   const handleChange = (event) => {
     const { name, value } = event.target;
+    if (name === "phoneNumber") {
+      const nextValue = value.startsWith(DEFAULT_COUNTRY_CODE)
+        ? value
+        : `${DEFAULT_COUNTRY_CODE}${value.replace(/^\+?91?/, "")}`;
+      setFormValues((current) => ({ ...current, [name]: nextValue }));
+      return;
+    }
+
     setFormValues((current) => ({ ...current, [name]: value }));
   };
 
@@ -62,7 +51,7 @@ function ProfilePage() {
 
     try {
       await saveProfile(formValues);
-      setMessage("Profile updated successfully.");
+      setMessage(isAdmin ? "Profile updated successfully." : "Registration details saved successfully.");
     } catch (profileError) {
       setError(profileError.message);
     }
@@ -70,62 +59,87 @@ function ProfilePage() {
 
   return (
     <section className="profile-page container">
-      <div className="profile-hero-card">
-        <div className="profile-avatar-large">
-          {(profile?.displayName || profile?.email || "U").charAt(0).toUpperCase()}
-        </div>
-        <div className="profile-hero-copy">
-          <p className="auth-eyebrow">{isAdmin ? "Admin Profile" : "User Profile"}</p>
-          <h1>{profile?.displayName || "Land Records Training Academy User"}</h1>
-          <p>
-            {isAdmin
-              ? "Manage the room allotment register, download booked data, and review academy-wide booking activity."
-              : "Review your account details, stay activity, and booking history for the academy room booking portal."}
-          </p>
-        </div>
-      </div>
-
-      <div className="profile-stats-grid">
-        <article className="profile-stat-card">
-          <span>Total Bookings</span>
-          <strong>{stats.totalBookings}</strong>
-        </article>
-        <article className="profile-stat-card">
-          <span>Active Stays</span>
-          <strong>{stats.activeStays}</strong>
-        </article>
-        <article className="profile-stat-card">
-          <span>{isAdmin ? "Admin Managed" : "Admin-assisted"}</span>
-          <strong>{stats.adminManaged}</strong>
-        </article>
-      </div>
-
       <div className="profile-layout">
         <article className="profile-card">
-          <h2>Account Information</h2>
+          <div className="profile-registration-head">
+            <div>
+              <h2>{isAdmin ? "Account Information" : "User Registration"}</h2>
+              <p className="profile-registration-copy">
+                {isAdmin
+                  ? "Update your administrator contact details and academy profile."
+                  : "Fill your details once. The admin will use this saved profile to search your name and allot a room."}
+              </p>
+            </div>
+            {!isAdmin ? (
+              <span className={`profile-status-pill ${isProfileComplete ? "complete" : "pending"}`}>
+                {isProfileComplete ? "Registration Complete" : "Registration Pending"}
+              </span>
+            ) : null}
+          </div>
+
+          {!isAdmin && !isProfileComplete ? (
+            <p className="profile-registration-note">
+              Complete all required fields so your record appears properly in the admin allotment list.
+            </p>
+          ) : null}
+
           {error ? <p className="auth-error booking-feedback">{error}</p> : null}
           {message ? <p className="auth-success booking-feedback">{message}</p> : null}
+
           <form className="profile-form" onSubmit={handleSave}>
             <div className="profile-info-list">
               <label>
-                <span>Display Name</span>
-                <input name="displayName" value={formValues.displayName} onChange={handleChange} />
+                <span>Employee Name *</span>
+                <input name="displayName" value={formValues.displayName} onChange={handleChange} required />
               </label>
               <label>
                 <span>Email</span>
                 <input name="email" value={formValues.email} onChange={handleChange} disabled />
               </label>
               <label>
-                <span>Phone Number</span>
-                <input name="phoneNumber" value={formValues.phoneNumber} onChange={handleChange} />
+                <span>Phone Number *</span>
+                <input
+                  name="phoneNumber"
+                  value={formValues.phoneNumber}
+                  onChange={handleChange}
+                  required
+                />
               </label>
               <label>
-                <span>Office</span>
-                <input name="office" value={formValues.office} onChange={handleChange} />
+                <span>Office *</span>
+                <input name="office" value={formValues.office} onChange={handleChange} required />
               </label>
               <label>
-                <span>Designation</span>
-                <input name="designation" value={formValues.designation} onChange={handleChange} />
+                <span>Designation *</span>
+                <input name="designation" value={formValues.designation} onChange={handleChange} required />
+              </label>
+              <label>
+                <span>Administrative Work *</span>
+                <select name="adminWork" value={formValues.adminWork} onChange={handleChange} required>
+                  <option value="">Select option</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </label>
+              <label className="full-span">
+                <span>Type of Administrative Work / Stay Type *</span>
+                <input
+                  name="workType"
+                  value={formValues.workType}
+                  onChange={handleChange}
+                  placeholder="Training Programme / Administrative Inspection / Official Visit"
+                  required
+                />
+              </label>
+              <label className="full-span">
+                <span>Remarks</span>
+                <textarea
+                  name="remarks"
+                  rows="4"
+                  value={formValues.remarks}
+                  onChange={handleChange}
+                  placeholder="Optional notes for the allotment desk"
+                />
               </label>
               <div className="profile-static-field">
                 <span>Role</span>
@@ -137,7 +151,7 @@ function ProfilePage() {
               </div>
             </div>
             <button type="submit" className="small-button profile-save-button">
-              Save Profile
+              {isAdmin ? "Save Profile" : "Save Registration"}
             </button>
           </form>
         </article>

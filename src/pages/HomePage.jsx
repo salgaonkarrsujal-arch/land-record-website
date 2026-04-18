@@ -1,68 +1,58 @@
 import { Link } from "react-router-dom";
-import SearchBar from "../components/SearchBar";
-import RoomCard from "../components/RoomCard";
 import { useAuth } from "../context/AuthContext";
-import { categoryRooms, overviewCards, topRatedRooms } from "../data/siteContent";
 
 function HomePage() {
-  const { isAuthenticated, profile } = useAuth();
+  const { isAdmin, isMainAdmin } = useAuth();
 
   return (
-    <>
-      <section className="home-hero">
-        <div className="hero-overlay">
-          <div className="container hero-inner">
-            <div className="hero-copy">
-              <h1>Reserve hostel rooms and manage academy stay allotments with ease.</h1>
-              <p>Book rooms for training visits and administrative work at Land Records Training Academy.</p>
-              {isAuthenticated ? (
-                <div className="home-profile-strip">
-                  <span className="profile-avatar home-avatar">
-                    {(profile?.displayName || profile?.email || "U").charAt(0).toUpperCase()}
-                  </span>
-                  <div className="home-profile-copy">
-                    <span className="home-profile-label">Signed in</span>
-                    <strong>{profile?.displayName || profile?.email || "Signed-in user"}</strong>
-                    <small>Use the profile menu to manage your account and bookings.</small>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <div className="container search-bar-wrap">
-          <SearchBar />
-        </div>
-      </section>
-      <section className="content-section container">
-        <div className="section-title">
-          <h2>Top Rated</h2>
-          <span />
-        </div>
-        <div className="room-grid five-col">
-          {topRatedRooms.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
-        </div>
-      </section>
+    <section className="content-section container">
+      <div className="section-title">
+        <h2>{isAdmin ? "Dashboard" : "Home"}</h2>
+        <span />
+      </div>
 
-      <section className="content-section container">
-        <div className="section-title">
-          <h2>Category</h2>
-          <span />
-        </div>
-        <div className="room-grid five-col">
-          {categoryRooms.map((room) => (
-            <RoomCard key={room.id} room={room} />
-          ))}
-        </div>
-        <div className="section-action">
-          <Link className="small-button" to="/explore">
-            Explore All Stays
+      <div className="overview-grid">
+        <article className="overview-card">
+          <h3>{isAdmin ? "Create Allotment" : "My Profile"}</h3>
+          <p>{isAdmin ? "Create room allotment for registered users." : "View and update your saved registration details."}</p>
+          <Link className="small-button" to={isAdmin ? "/create-booking" : "/profile"}>
+            {isAdmin ? "Create Allotment" : "Open Profile"}
           </Link>
-        </div>
-      </section>
-    </>
+        </article>
+
+        <article className="overview-card">
+          <h3>{isAdmin ? "Allotment Register" : "My Bookings"}</h3>
+          <p>{isAdmin ? "View, search, and export the booking register." : "Check your allotment status and room details."}</p>
+          <Link className="small-button" to={isAdmin ? "/bookings" : "/my-bookings"}>
+            {isAdmin ? "Open Register" : "Open My Bookings"}
+          </Link>
+        </article>
+
+        {isAdmin && isMainAdmin ? (
+          <article className="overview-card">
+            <h3>Manage Admins</h3>
+            <p>Grant or remove admin access. Only the primary admin can open this control panel.</p>
+            <Link className="small-button" to="/manage-admins">
+              Open Admin Access
+            </Link>
+          </article>
+        ) : null}
+
+        <article className="overview-card">
+          <h3>{isAdmin ? "Room Occupancy" : "Support"}</h3>
+          <p>{isAdmin ? "Check available and occupied rooms before assigning." : "Admin will use your saved profile to allot the room."}</p>
+          {isAdmin ? (
+            <Link className="small-button" to="/room-occupancy">
+              Open Map
+            </Link>
+          ) : (
+            <Link className="small-button" to="/my-bookings">
+              View Booking Status
+            </Link>
+          )}
+        </article>
+      </div>
+    </section>
   );
 }
 

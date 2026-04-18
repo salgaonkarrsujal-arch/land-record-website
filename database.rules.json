@@ -1,0 +1,24 @@
+{
+  "rules": {
+    "bookings": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "users": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "notifications": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "publicRoomSearch": {
+      ".read": true,
+      "$emailKey": {
+        "$bookingId": {
+          ".write": "auth != null"
+        }
+      }
+    }
+  }
+}

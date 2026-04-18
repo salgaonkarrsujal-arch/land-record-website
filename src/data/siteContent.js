@@ -1,8 +1,6 @@
 export const navLinks = [
   { label: "Home", to: "/" },
-  { label: "Room Details", to: "/room-details" },
-  { label: "Allotments", to: "/bookings" },
-  { label: "Explore", to: "/explore" }
+  { label: "Allotments", to: "/bookings" }
 ];
 
 export const overviewCards = [
@@ -46,7 +44,7 @@ export const heroSearchFields = [
   { label: "Academy / Office", value: "Chhatrapati Sambhajinagar" },
   { label: "From", value: "03 Apr 2026" },
   { label: "To", value: "07 Apr 2026" },
-  { label: "Room / Employee", value: "1 Room | 1 Employee" }
+  { label: "Room / Candidates", value: "1 Room | 2 Candidates" }
 ];
 
 export const topRatedRooms = [
@@ -280,12 +278,12 @@ export const roomOptions = [
 export const bookingSidebar = {
   title: "Land Records Training Academy",
   location: "Chhatrapati Sambhajinagar, Maharashtra",
-  details: ["1 employee", "Reception Desk", "Women's / Men's Hostel", "Parking"],
+  details: ["2 candidates", "Reception Desk", "Women's / Men's Hostel", "Parking"],
   booking: {
     checkIn: "Thu, 03 Apr, 2026",
     checkOut: "Mon, 07 Apr, 2026",
-    roomType: "Administrative Stay Room",
-    guests: "1 employee, room allotment prototype"
+    roomType: "Shared Allotment Room",
+    guests: "2 candidates, shared room allotment"
   },
   pricing: [
     { label: "Room charges amount", value: "₹2,400" },

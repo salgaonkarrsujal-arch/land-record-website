@@ -1,5 +1,3 @@
-import { footerColumns } from "../data/siteContent";
-
 function Footer() {
   return (
     <footer className="site-footer">
@@ -11,27 +9,9 @@ function Footer() {
             <small>Training Academy</small>
           </span>
         </div>
-        <div className="footer-columns">
-          {footerColumns.map((column) => (
-            <div key={column.title}>
-              <h4>{column.title}</h4>
-              {column.links.map((link) => (
-                <a href="/" key={link} onClick={(event) => event.preventDefault()}>
-                  {link}
-                </a>
-              ))}
-            </div>
-          ))}
-        </div>
       </div>
       <div className="container footer-bottom">
         <span>© 2026 Land Records Training Academy. All rights reserved.</span>
-        <div className="social-row">
-          <span>t</span>
-          <span>in</span>
-          <span>w</span>
-          <span>f</span>
-        </div>
       </div>
     </footer>
   );

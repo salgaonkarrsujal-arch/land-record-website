@@ -1,6 +1,7 @@
 import { getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
+import { getMessaging, isSupported as isMessagingSupported } from "firebase/messaging";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -19,6 +20,7 @@ const isFirebaseConfigured = requiredKeys.every((key) => Boolean(firebaseConfig[
 let app = null;
 let auth = null;
 let database = null;
+let messaging = null;
 
 if (isFirebaseConfigured) {
   app = initializeApp(firebaseConfig);
@@ -36,4 +38,23 @@ function getSecondaryAuth(appName = "admin-user-creator") {
   return getAuth(secondaryApp);
 }
 
-export { app, auth, database, firebaseConfig, getSecondaryAuth, isFirebaseConfigured };
+async function getClientMessaging() {
+  if (!isFirebaseConfigured || !app) {
+    return null;
+  }
+
+  if (messaging) {
+    return messaging;
+  }
+
+  const supported = await isMessagingSupported();
+
+  if (!supported) {
+    return null;
+  }
+
+  messaging = getMessaging(app);
+  return messaging;
+}
+
+export { app, auth, database, firebaseConfig, getClientMessaging, getSecondaryAuth, isFirebaseConfigured };

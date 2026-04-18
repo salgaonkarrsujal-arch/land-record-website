@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 function SearchBar({ compact = false }) {
   return (
     <div className={`search-bar ${compact ? "compact" : ""}`}>
@@ -16,12 +14,12 @@ function SearchBar({ compact = false }) {
         <strong>07 Apr 2026</strong>
       </div>
       <div className="search-item">
-        <span className="search-label">Room / Employee</span>
-        <strong>1 Room | 1 Employee</strong>
+        <span className="search-label">Room / Candidates</span>
+        <strong>1 Room | 2 Candidates</strong>
       </div>
-      <Link className="search-button" to="/explore">
-        {compact ? "Search Again" : "Book Now"}
-      </Link>
+      <button type="button" className="search-button" disabled>
+        {compact ? "Search Disabled" : "Booking Disabled"}
+      </button>
     </div>
   );
 }
